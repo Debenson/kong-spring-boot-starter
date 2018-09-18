@@ -3,7 +3,9 @@ package com.eimapi.starter.kong.bean;
 import java.util.List;
 
 import com.eimapi.starter.kong.ApiModel;
+import com.eimapi.starter.kong.exception.KongStarterException;
 
 public interface ApiCandidateSearch {
-	List<ApiModel> search(List<String> packages);
+
+	List<ApiModel> search() throws KongStarterException;
 }

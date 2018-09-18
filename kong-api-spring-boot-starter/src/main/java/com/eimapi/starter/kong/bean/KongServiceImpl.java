@@ -18,7 +18,9 @@ public class KongServiceImpl implements KongService {
 
 	public void addService(List<ApiModel> apiList) {
 		// TODO Auto-generated method stub
-		
+
+		apiList.forEach(api -> System.out.println(api.toString()));
+
 	}
 
 	
