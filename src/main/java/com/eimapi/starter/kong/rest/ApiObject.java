@@ -1,5 +1,6 @@
 package com.eimapi.starter.kong.rest;
 
+@Deprecated
 public class ApiObject {
 
 	private String name;

@@ -1,11 +1,8 @@
 package com.eimapi.starter.kong;
 
-import com.eimapi.starter.kong.bean.ApiCandidateSearch;
-import com.eimapi.starter.kong.bean.ApiCandidateSearchImpl;
-import com.eimapi.starter.kong.bean.KongService;
-import com.eimapi.starter.kong.bean.KongServiceImpl;
-import com.eimapi.starter.kong.exception.KongStarterException;
-import com.eimapi.starter.kong.rest.ApiObject;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -13,9 +10,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
+import com.eimapi.starter.kong.bean.ApiCandidateSearch;
+import com.eimapi.starter.kong.bean.KongService;
+import com.eimapi.starter.kong.bean.impl.ApiCandidateSearchImpl;
+import com.eimapi.starter.kong.bean.impl.KongServiceImpl;
+import com.eimapi.starter.kong.exception.KongStarterException;
+import com.eimapi.starter.kong.rest.ServiceObject;
 
 @Configuration
 @EnableConfigurationProperties
@@ -37,10 +37,11 @@ public class KongStarterConfiguration {
 
     @PostConstruct
     public void init() throws KongStarterException {
-    	Map<String, ApiObject> apiMap = this.candidateSearch().search();
+    	
+    	Map<String, ServiceObject> apiMap = this.candidateSearch().search();
     	
     	apiMap.forEach((key, value) -> {
-    		this.kongService().addService(value);
+    		this.kongService().buildServiceAndRoutes(value);
     	}); 
     }
 }

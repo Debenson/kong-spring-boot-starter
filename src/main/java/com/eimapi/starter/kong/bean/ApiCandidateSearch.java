@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.eimapi.starter.kong.exception.KongStarterException;
 import com.eimapi.starter.kong.rest.ApiObject;
+import com.eimapi.starter.kong.rest.ServiceObject;
 
 /**
  * Interface to define the API candidate search
@@ -20,5 +21,6 @@ public interface ApiCandidateSearch {
 	 * @return {@link Map} of {@link ApiObject}
 	 * @throws KongStarterException if any error occurs
 	 */
-	Map<String, ApiObject> search() throws KongStarterException;
+	Map<String, ServiceObject> search() throws KongStarterException;
+	
 }
