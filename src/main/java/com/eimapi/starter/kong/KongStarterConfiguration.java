@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,7 +23,8 @@ import com.eimapi.starter.kong.rest.ServiceObject;
 @EnableConfigurationProperties
 @ConditionalOnWebApplication
 public class KongStarterConfiguration {
-
+	private Logger logger = LoggerFactory.getLogger(KongStarterConfiguration.class);
+	
     @Bean
     @ConditionalOnMissingBean
     public KongService kongService() {
@@ -37,10 +40,10 @@ public class KongStarterConfiguration {
 
     @PostConstruct
     public void init() throws KongStarterException {
+    	logger.info("Starting Kong Configuration Starter");
+    	Map<String, ServiceObject> serviceMap = this.candidateSearch().search();
     	
-    	Map<String, ServiceObject> apiMap = this.candidateSearch().search();
-    	
-    	apiMap.forEach((key, value) -> {
+    	serviceMap.forEach((key, value) -> {
     		this.kongService().buildServiceAndRoutes(value);
     	}); 
     }

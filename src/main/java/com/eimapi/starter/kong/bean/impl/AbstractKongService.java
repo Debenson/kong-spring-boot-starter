@@ -1,6 +1,5 @@
 package com.eimapi.starter.kong.bean.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
@@ -10,22 +9,23 @@ import org.springframework.web.client.RestTemplate;
 
 import com.eimapi.starter.kong.exception.KongStarterException;
 import com.eimapi.starter.kong.rest.RouteObject;
+import com.eimapi.starter.kong.rest.RoutObjectList;
 
 public abstract class AbstractKongService {
 
-	RestTemplate restTemplate = null;
+	public static RestTemplate restTemplate = null;
 
 	/**
 	 * Get the rest template
 	 * 
 	 * @return {@link RestTemplate} the rest template
 	 */
-	protected RestTemplate getRestTemplate() {
+	protected static RestTemplate getRestTemplate() {
 		if (restTemplate == null) {
-			this.restTemplate = new RestTemplate();
+			restTemplate = new RestTemplate();
 		}
 
-		return this.restTemplate;
+		return restTemplate;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public abstract class AbstractKongService {
 	 */
 	protected <T> T getKongObject(String url, Class<T> clazz) throws KongStarterException {
 		try {
-			ResponseEntity<T> resp = this.getRestTemplate().getForEntity(url, clazz);
+			ResponseEntity<T> resp = getRestTemplate().getForEntity(url, clazz);
 			return resp.getBody();
 		} catch (RestClientException e) {
 			throw new KongStarterException(e.getMessage(), e.getCause());
@@ -65,21 +65,15 @@ public abstract class AbstractKongService {
 	/**
 	 * get Kong Route Object List
 	 * 
-	 * @param url   the search URL
+	 * @param url the search URL
 	 * @throws KongStarterException if a {@link RestClientException} occur
 	 */
 	protected List<RouteObject> getKongRouteObjectList(String url) throws KongStarterException {
 		try {
-			ResponseEntity<LinkedHashMap> resp = this.getRestTemplate().exchange(url, HttpMethod.GET, null, LinkedHashMap.class);
-			
-			@SuppressWarnings("unchecked")
-			List<LinkedHashMap> obj = (List<LinkedHashMap>) resp.getBody().get("data");
-			
-			obj.forEach(o -> {
-				System.out.println(o);
-			});
-			
-			return null;//resp.getBody();
+			ResponseEntity<RoutObjectList> resp = getRestTemplate().exchange(url, HttpMethod.GET, null, RoutObjectList.class);
+			List<RouteObject> objList = resp.getBody().getData();
+	
+			return objList;
 		} catch (RestClientException e) {
 			throw new KongStarterException(e.getMessage(), e.getCause());
 		}
@@ -93,7 +87,7 @@ public abstract class AbstractKongService {
 	 */
 	protected void deleteKongObject(String url) throws KongStarterException {
 		try {
-			this.getRestTemplate().delete(url);
+			getRestTemplate().delete(url);
 		} catch (RestClientException e) {
 			throw new KongStarterException(e.getMessage(), e.getCause());
 		}
@@ -109,11 +103,10 @@ public abstract class AbstractKongService {
 	 */
 	protected <T> T createKongObject(String url, T obj, Class<T> clazz) throws KongStarterException {
 		try {
-			ResponseEntity<T> resp = this.getRestTemplate().postForEntity(url, obj, clazz);
+			ResponseEntity<T> resp = getRestTemplate().postForEntity(url, obj, clazz);
 			return resp.getBody();
 		} catch (RestClientException e) {
 			throw new KongStarterException(e.getMessage(), e.getCause());
 		}
 	}
-
 }

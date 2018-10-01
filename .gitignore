@@ -25,7 +25,10 @@ hs_err_pid*
 target/
 .settings/
 .classpath
-/.project
+.factorypath
+/.apt_generated_tests/
+/.apt_generated/
+.project
 
 *.iml
 /.idea/

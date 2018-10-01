@@ -2,10 +2,13 @@ package com.eimapi.starter.kong.bean.impl;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 
 import com.eimapi.starter.kong.bean.KongService;
@@ -13,6 +16,11 @@ import com.eimapi.starter.kong.exception.KongStarterException;
 import com.eimapi.starter.kong.rest.RouteObject;
 import com.eimapi.starter.kong.rest.ServiceObject;
 
+/**
+ * Implementation of Kong service
+ * @author dengonca
+ *
+ */
 @Component
 @Configuration
 public class KongServiceImpl extends AbstractKongService implements KongService {
@@ -33,53 +41,19 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	@Value("${kong.server.password:}")
 	private String password;
 	
-	//MODE: REBUILD || UPDATE || CREATE 
+	//MODE: REBUILD || CREATE
 	@Value("${kong.build.mode:REBUILD}")
 	private String mode;
+	
+	
+	@PostConstruct
+	public void init() {
+		if(user != null && !user.isEmpty()) {
+			logger.info("Credential are added to rest template.");
+			getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
+		}
+	}
 		
-
-	/*@Override
-	public void addService(ApiObject api) {
-
-		HttpEntity<ApiObject> apiEntity = new HttpEntity<>(api);
-		ResponseEntity<String> addAPIResp = null;
-
-		ResponseEntity<String> respo = hasService(api.getName());
-		if (respo != null) {
-			try {
-				JSONObject jObj = new JSONObject(respo.getBody());
-				String id = jObj.getString("id");
-
-				getRestTemplate().delete(kongURL + "/apis/" + id);
-
-				logger.info("The old APIs [" + api.getUris() + "] was removed from Kong.");
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-
-		try {
-			addAPIResp = getRestTemplate().postForEntity((kongURL + "/apis"), apiEntity, String.class);
-		} catch (HttpClientErrorException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		if (addAPIResp.getStatusCode().equals(HttpStatus.CREATED)) {
-			logger.info("The APIs [" + api.getUris() + "] was created at Kong.");
-		}
-	}*/
-
-	/*public ResponseEntity<String> hasService(String name) {
-		try {
-			return getRestTemplate().getForEntity(this.kongURL + "/apis/" + name, String.class);
-		} catch (HttpClientErrorException e) {
-			return null;
-		}
-	}*/
-
-	// -----------------------------
-
 	@Override
 	public void buildServiceAndRoutes(ServiceObject service) {		
 		switch (this.mode) {
@@ -125,50 +99,32 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	 * @param serviceObject the {@link ServiceObject} to be rebuild
 	 */
 	private void rebuildServiceAndRoutes(ServiceObject serviceObject) {
-		try {
+		try {			
 			ServiceObject old = this.getService(serviceObject.getName());
 			if(old != null) {
 				this.removeServiceAndRoutes(old);
 			}
 			
-			this.createService(serviceObject);
-			this.createRoutes(serviceObject);
+			ServiceObject objService = this.createService(serviceObject);
+			objService.setRouteObjects(serviceObject.getRouteObjects());
+			
+			for(RouteObject obj: objService.getRouteObjects()) {
+				obj.setService(objService);
+			}
+			
+			this.createRoutes(objService);
 		} catch (KongStarterException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	/*private void createServiceIfNotExists(ServiceObject serviceObject) {
-		ServiceObject serviceObjectFoud = this.getService(serviceObject.getName());
-		
-		if(serviceObjectFoud != null && serviceObjectFoud.getId() != null) {
-			//check by route
-			List<RouteObject> routeObjects = this.getRoutes(serviceObjectFoud);
-			
-			return;
-		}
-		
-		try {
-			this.createService(serviceObject);
-		} catch (KongStarterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		RouteObject[] routeObjects = serviceObject.getRouteObjects(); 
-
-		for (RouteObject routeObject : routeObjects) {
-			try {
-				this.createRoute(routeObject);
-			} catch (KongStarterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-	}*/
-	
+	/**
+	 * Remove the service and all her routes
+	 * 
+	 * @param object the service object
+	 * @throws KongStarterException if any error occur
+	 */
 	public void removeServiceAndRoutes(ServiceObject object) throws KongStarterException {
 		String URL_RUOTES = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, object.getName(), KONG_ROUTE_PATH);
 		List<RouteObject> routeList = super.getKongRouteObjectList(URL_RUOTES);
@@ -180,36 +136,63 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 		this.removeService(object.getName());
 	}
 	
+	/**
+	 * @see KongService#createService(ServiceObject)
+	 */
 	@Override
-	public ServiceObject createService(ServiceObject object) throws KongStarterException {
+	public ServiceObject createService(ServiceObject object) throws KongStarterException {			
 		String URL = this.getKongURL(this.kongURL, KONG_SERVICE_PATH);
-		return super.createKongObject(URL, object, ServiceObject.class);
+		ServiceObject so = super.createKongObject(URL, object, ServiceObject.class);
+				
+		logger.info("Kong Service Created: {{}}: {} ", so.getPath(), so.getName());
+		
+		return so;
 	}
 
+	/**
+	 * @see KongService#removeService(String)
+	 */
 	@Override
 	public void removeService(String id) throws KongStarterException {
 		String URL = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, id);
+		
+		if(logger.isDebugEnabled()) {
+			logger.info("Delete Kong Service: {{}}", id);
+		}
+		
 		super.deleteKongObject(URL);
 	}
 
+	/**
+	 * @see KongService#createRoute(RouteObject)
+	 */
 	@Override
 	public RouteObject createRoute(RouteObject object) throws KongStarterException {
 		String URL = this.getKongURL(this.kongURL, KONG_ROUTE_PATH);
-		return super.createKongObject(URL, object, RouteObject.class);
+		RouteObject ro = super.createKongObject(URL, object, RouteObject.class);
+		
+		logger.info("Kong Route Created: {{}}: {} - {}", ro.getPaths(), ro.getProtocols(), ro.getMethods());
+		
+		return ro;
 	}
 
+	/**
+	 * @see KongService#removeRoute(String)
+	 */
 	@Override
 	public void removeRoute(String id) throws KongStarterException {
 		String URL = this.getKongURL(this.kongURL, KONG_ROUTE_PATH, id);
+		
+		if(logger.isDebugEnabled()) {
+			logger.info("Delete Kong Route: {{}}", id);
+		}
+		
 		super.deleteKongObject(URL);
 	}
 
-	@Override
-	public List<RouteObject> getRoutes(ServiceObject serviceObject) throws KongStarterException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	/**
+	 * @see KongService#getService(String)
+	 */
 	@Override
 	public ServiceObject getService(String name) {
 		String URL = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, name);

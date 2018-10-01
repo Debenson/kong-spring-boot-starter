@@ -1,7 +1,5 @@
 package com.eimapi.starter.kong.bean;
 
-import java.util.List;
-
 import com.eimapi.starter.kong.exception.KongStarterException;
 import com.eimapi.starter.kong.rest.RouteObject;
 import com.eimapi.starter.kong.rest.ServiceObject;
@@ -40,15 +38,6 @@ public interface KongService {
 	 * @param id the route ID
 	 */
 	void removeRoute(String id) throws KongStarterException;
-	
-	/**
-	 * get routes from service
-	 * 
-	 * @param serviceObject
-	 * @return
-	 * @throws KongStarterException
-	 */
-	List<RouteObject> getRoutes(ServiceObject serviceObject) throws KongStarterException;
 	
 	/**
 	 * Get service from name

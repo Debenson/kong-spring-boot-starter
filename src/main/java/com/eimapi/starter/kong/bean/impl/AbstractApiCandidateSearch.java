@@ -4,14 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import com.eimapi.starter.kong.bean.ApiCandidateSearch;
-import com.eimapi.starter.kong.exception.KongStarterException;
-import com.eimapi.starter.kong.rest.ServiceObject;
 
 /**
  * Abstract class that helps to implements {@link ApiCandidateSearch} interface

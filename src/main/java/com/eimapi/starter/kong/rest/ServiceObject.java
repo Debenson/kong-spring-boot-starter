@@ -1,6 +1,8 @@
 package com.eimapi.starter.kong.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Rest template for kong Service
@@ -8,6 +10,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @author Denys G. Santos
  * @since 0.0.2
  * @version 0.0.1
+ */
+/**
+ * @author dengonca
+ *
  */
 @JsonIgnoreProperties(value = "routeObjects")
 public class ServiceObject {
@@ -172,5 +178,20 @@ public class ServiceObject {
 		} else if (!protocol.equals(other.protocol))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		ObjectMapper mapper = new ObjectMapper();
+		String value = new String();
+		
+		try {
+			value = mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		return value;
 	}
 }

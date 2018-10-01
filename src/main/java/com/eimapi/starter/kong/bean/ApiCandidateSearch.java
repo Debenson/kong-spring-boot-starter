@@ -3,7 +3,6 @@ package com.eimapi.starter.kong.bean;
 import java.util.Map;
 
 import com.eimapi.starter.kong.exception.KongStarterException;
-import com.eimapi.starter.kong.rest.ApiObject;
 import com.eimapi.starter.kong.rest.ServiceObject;
 
 /**

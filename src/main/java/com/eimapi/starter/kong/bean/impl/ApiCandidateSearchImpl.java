@@ -30,7 +30,7 @@ import com.eimapi.starter.kong.rest.ServiceObject;
  */
 @Component
 public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implements ApiCandidateSearch {
-
+	
 	@Autowired
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
@@ -77,6 +77,8 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 
 		EntryPackageFilter packageFilter = new EntryPackageFilter();
 
+		
+		
 		return handlerMethods.entrySet().stream()
 				.filter(packageFilter)
 				.collect(
@@ -88,26 +90,12 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 				);
 	}
 
-	/*private ApiObject getApiObject(HandlerMethod method, RequestMappingInfo mapping) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.serverProtocol);
-		builder.append("://");
-		builder.append(this.serverAddres);
-		builder.append(":");
-		builder.append(this.serverPort);
-
-		Object[] arrayPath = mapping.getPatternsCondition().getPatterns().toArray();
-
-		String path = Arrays.toString(arrayPath);
-		path = path.substring(1, path.length() - 1);
-
-		builder.append(arrayPath[0].toString());
-
-		return new ApiObject(getMethodFullName(method), this.kongHost, builder.toString(), path);
-	}*/
-
-	// ---------------------
-
+	/**
+	 * 
+	 * @param method
+	 * @param mapping
+	 * @return
+	 */
 	protected ServiceObject getServiceObject(@NotNull HandlerMethod method, @NotNull RequestMappingInfo mapping) {
 
 		String[] paths = this.getPaths(mapping);
