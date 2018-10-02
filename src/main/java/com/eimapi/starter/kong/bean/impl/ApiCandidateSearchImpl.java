@@ -1,10 +1,13 @@
 package com.eimapi.starter.kong.bean.impl;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -41,7 +44,7 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 	@Value("${server.protocol:http}")
 	private String serverProtocol;
 
-	@Value("${server.address:localhost}")
+	@Value("${server.address:}")
 	private String serverAddres;
 
 	@Value("${server.port:8080}")
@@ -70,6 +73,26 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 
 	@Value("${kong.model.route.regex_priority:0}")
     private Integer regex_priority;
+	
+	
+	@PostConstruct
+	public void init() {
+		if(serverAddres == null || serverAddres.isEmpty()) {
+			try {
+				InetAddress ia =InetAddress.getLocalHost();
+				serverAddres = ia.getHostAddress();
+			} catch (UnknownHostException e) {
+				logger.error("Error when try to recovery server address. Set it 'localhost'");
+				serverAddres = "localhost";
+			}
+		}
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Server address set as: {}", serverAddres);
+		}
+
+	}
+	
 	
 	/**
 	 * @see ApiCandidateSearch#search()
