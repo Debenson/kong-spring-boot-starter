@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ import com.eimapi.starter.kong.rest.ServiceObject;
  */
 @Component
 public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implements ApiCandidateSearch {
+	private Logger logger = LoggerFactory.getLogger(ApiCandidateSearch.class);
 	
 	@Autowired
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -74,12 +77,14 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 	@Override
 	public Map<String, ServiceObject> search() throws KongStarterException {
 		Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.requestMappingHandlerMapping.getHandlerMethods();
-
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Start mapping Kong services and routes");
+		}
+		
 		EntryPackageFilter packageFilter = new EntryPackageFilter();
 
-		
-		
-		return handlerMethods.entrySet().stream()
+		Map<String, ServiceObject> map = handlerMethods.entrySet().stream()
 				.filter(packageFilter)
 				.collect(
 						Collectors.toMap(
@@ -88,6 +93,12 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 								(item1, item2) -> item1
 						)
 				);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("{} APIs mapped.", map.values().size());
+		}
+		
+		return map;
 	}
 
 	/**

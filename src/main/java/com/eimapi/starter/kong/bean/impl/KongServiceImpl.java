@@ -18,8 +18,10 @@ import com.eimapi.starter.kong.rest.ServiceObject;
 
 /**
  * Implementation of Kong service
- * @author dengonca
  *
+ * @author Denys G. Santos
+ * @since 0.0.1
+ * @version 0.0.1
  */
 @Component
 @Configuration
@@ -48,20 +50,34 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	
 	@PostConstruct
 	public void init() {
+		if(logger.isDebugEnabled()) {
+			if(mode.equals(MODE_CREATE) || mode.equals(MODE_REBUILD)) {
+				logger.debug("'{}' Kong build mode selected", mode);
+			} else {
+				logger.debug("No one entry to mode '{}'. Using the default Kong build mode '{}'.", mode, MODE_CREATE);
+			}
+		}
+		
 		if(user != null && !user.isEmpty()) {
-			logger.info("Credential are added to rest template.");
+			if(logger.isDebugEnabled()) {
+				logger.debug("Using basic authentication. Adding kong API administration credentials.");
+			}
+			
 			getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
 		}
 	}
 		
 	@Override
-	public void buildServiceAndRoutes(ServiceObject service) {		
+	public void buildServiceAndRoutes(ServiceObject service) {	
 		switch (this.mode) {
 			case MODE_CREATE:
 				this.createServiceAndRoutes(service);
 				break;
 			case MODE_REBUILD:
 				this.rebuildServiceAndRoutes(service);
+				break;
+			default:
+				this.createServiceAndRoutes(service);
 				break;
 		}
 	}
@@ -73,7 +89,26 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	 * @throws KongStarterException if any error occur
 	 */
 	private void createRoutes(ServiceObject service) throws KongStarterException {
-		for (RouteObject object : service.getRouteObjects()) {
+		createRoutes(service, false);
+	}
+	
+	/**
+	 * Create all routes mapped on Kong service object
+	 * 
+	 * @param service the Kong service object
+	 * @throws KongStarterException if any error occur
+	 */
+	private void createRoutes(ServiceObject service, boolean checkBeforeCreate) throws KongStarterException {
+		String URL_RUOTES = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, service.getName(), KONG_ROUTE_PATH);
+		List<RouteObject> routeList = super.getKongRouteObjectList(URL_RUOTES);
+		
+		for (RouteObject object : service.getRouteObjects()) {			
+			if(checkBeforeCreate) {
+				if(routeList.contains(object)) {
+					continue;
+				}
+			}
+			
 			this.createRoute(object);
 		}
 	}
@@ -84,14 +119,24 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	 * @param serviceObject the Kong service Object
 	 */
 	private void createServiceAndRoutes(ServiceObject serviceObject) {
+		ServiceObject objService = this.getService(serviceObject.getName());
+	
 		try {
-			this.createService(serviceObject);
-			this.createRoutes(serviceObject);
-		} catch (KongStarterException e) {
+			if (objService == null) {
+				objService = this.createService(serviceObject);
+			}
+			
+			for(RouteObject obj : serviceObject.getRouteObjects()) {
+				obj.setService(objService);
+			}
+						
+			this.createRoutes(serviceObject, true);
+		} catch (KongStarterException e) {			
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
+	
 	
 	/**
 	 * Rebuild all services and routes. This methods remove the kong service and all routes related 
@@ -143,8 +188,10 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	public ServiceObject createService(ServiceObject object) throws KongStarterException {			
 		String URL = this.getKongURL(this.kongURL, KONG_SERVICE_PATH);
 		ServiceObject so = super.createKongObject(URL, object, ServiceObject.class);
-				
-		logger.info("Kong Service Created: {{}}: {} ", so.getPath(), so.getName());
+	
+		if(logger.isDebugEnabled()) {
+			logger.debug("Kong Service Created: {{}}: {} ", so.getPath(), so.getName());
+		}
 		
 		return so;
 	}
@@ -157,7 +204,7 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 		String URL = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, id);
 		
 		if(logger.isDebugEnabled()) {
-			logger.info("Delete Kong Service: {{}}", id);
+			logger.debug("Delete Kong Service: {{}}", id);
 		}
 		
 		super.deleteKongObject(URL);
@@ -167,11 +214,13 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 	 * @see KongService#createRoute(RouteObject)
 	 */
 	@Override
-	public RouteObject createRoute(RouteObject object) throws KongStarterException {
+	public RouteObject createRoute(RouteObject object) throws KongStarterException {	
 		String URL = this.getKongURL(this.kongURL, KONG_ROUTE_PATH);
 		RouteObject ro = super.createKongObject(URL, object, RouteObject.class);
 		
-		logger.info("Kong Route Created: {{}}: {} - {}", ro.getPaths(), ro.getProtocols(), ro.getMethods());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Kong Route Created: {{}}: {} - {}", ro.getPaths(), ro.getProtocols(), ro.getMethods());
+		}
 		
 		return ro;
 	}
@@ -184,7 +233,7 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
 		String URL = this.getKongURL(this.kongURL, KONG_ROUTE_PATH, id);
 		
 		if(logger.isDebugEnabled()) {
-			logger.info("Delete Kong Route: {{}}", id);
+			logger.debug("Delete Kong Route: {{}}", id);
 		}
 		
 		super.deleteKongObject(URL);

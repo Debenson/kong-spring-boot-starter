@@ -41,10 +41,13 @@ public class KongStarterConfiguration {
     @PostConstruct
     public void init() throws KongStarterException {
     	logger.info("Starting Kong Configuration Starter");
+    	
     	Map<String, ServiceObject> serviceMap = this.candidateSearch().search();
     	
     	serviceMap.forEach((key, value) -> {
     		this.kongService().buildServiceAndRoutes(value);
-    	}); 
+    	});
+    	
+    	logger.info("{} APIs processed by Kong service starter", serviceMap.size());
     }
 }

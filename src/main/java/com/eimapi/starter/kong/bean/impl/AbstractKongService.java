@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.eimapi.starter.kong.exception.KongStarterException;
 import com.eimapi.starter.kong.rest.RouteObject;
+import com.eimapi.starter.kong.rest.ServiceObject;
 import com.eimapi.starter.kong.rest.RoutObjectList;
 
 public abstract class AbstractKongService {
@@ -79,6 +80,16 @@ public abstract class AbstractKongService {
 		}
 	}
 
+	
+	protected void setServiceRoute(ServiceObject serviceObject, RouteObject[] routeObjects) {
+		serviceObject.setRouteObjects(routeObjects);
+		
+		for (RouteObject routeObject : routeObjects) {
+			routeObject.setService(serviceObject);
+		}
+		
+	}
+	
 	/**
 	 * Delete Kong Object
 	 * 

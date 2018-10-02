@@ -1,12 +1,20 @@
 package com.eimapi.starter.kong.rest;
 
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonInclude(content = Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RouteObject {
+	private Logger logger = LoggerFactory.getLogger(RouteObject.class);
 
 	@JsonInclude(content = Include.NON_NULL)
 	private String id;
@@ -106,4 +114,53 @@ public class RouteObject {
 	public void setService(ServiceObject service) {
 		this.service = service;
 	}
+	
+	@Override
+	public String toString() {
+		ObjectMapper mapper = new ObjectMapper();
+		String value = new String();
+		
+		try {
+			value = mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			logger.error("JSON Convertion Error: \n" + e.getMessage());
+		}
+		
+		return value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(hosts);
+		result = prime * result + Arrays.hashCode(methods);
+		result = prime * result + Arrays.hashCode(paths);
+		result = prime * result + Arrays.hashCode(protocols);
+		result = prime * result + ((service == null) ? 0 : service.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RouteObject other = (RouteObject) obj;
+		if (!Arrays.equals(hosts, other.hosts))
+			return false;
+		if (!Arrays.equals(methods, other.methods))
+			return false;
+		if (!Arrays.equals(paths, other.paths))
+			return false;
+		if (!Arrays.equals(protocols, other.protocols))
+			return false;
+		
+		return true;
+	}
+	
+	
 }

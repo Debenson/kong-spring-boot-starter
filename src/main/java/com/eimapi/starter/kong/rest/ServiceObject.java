@@ -1,6 +1,11 @@
 package com.eimapi.starter.kong.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,13 +22,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonIgnoreProperties(value = "routeObjects")
 public class ServiceObject {
+	private Logger logger = LoggerFactory.getLogger(ServiceObject.class);
+	
+	@JsonInclude(content = Include.NON_NULL)
 	private String name;
+	
 	private String protocol;
 	private String host;
 	private Integer port;
 	private String path;
 
+	@JsonInclude(content = Include.NON_NULL)
 	private String id;
+	
 	private Integer connect_timeout;
 	private Integer read_timeout;
 	private Integer retries;
@@ -188,8 +199,7 @@ public class ServiceObject {
 		try {
 			value = mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			System.exit(1);
+			logger.error("JSON Convertion Error: \n" + e.getMessage());
 		}
 		
 		return value;
