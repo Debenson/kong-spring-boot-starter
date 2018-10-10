@@ -1,0 +1,97 @@
+group 'com.eimapi'
+version '0.3.0'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('spring-boot.version', '2.0.5.RELEASE')
+    set('spring-web.version', '5.0.9.RELEASE')
+}
+
+
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: "${property('spring-boot.version')}"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${property('spring-boot.version')}"
+    compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: "${property('spring-boot.version')}"
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: "${property('spring-boot.version')}"
+
+    compile group: 'org.springframework', name: 'spring-webmvc', version: "${property('spring-web.version')}"
+    compile group: 'org.springframework', name: 'spring-web', version: "${property('spring-web.version')}"
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            println ossrhUsername
+            println ossrhPassword
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'kong-spring-boot-starter'
+                packaging 'jar'
+                description 'The kong cliente spring boot starter'
+                url 'http://github.com/eimapi/kong-spring-boot-starter'
+
+                scm {
+                    connection 'scm:git:git@github.com:eimapi/kong-spring-boot-starter.git'
+                    developerConnection 'scm:git:git@github.com:eimapi/kong-spring-boot-starter.git'
+                    url 'git@github.com:eimapi/kong-spring-boot-starter.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'gsdenys'
+                        name 'Denys G. Santos'
+                        email 'gsdenys@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}

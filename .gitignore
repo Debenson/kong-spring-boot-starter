@@ -32,3 +32,6 @@ target/
 
 *.iml
 /.idea/
+/kong-spring-boot-starter.iml
+/.gradle/
+/build/

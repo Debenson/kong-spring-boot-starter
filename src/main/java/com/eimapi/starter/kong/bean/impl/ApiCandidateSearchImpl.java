@@ -36,7 +36,7 @@ import com.eimapi.starter.kong.rest.ServiceObject;
 @Component
 public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implements ApiCandidateSearch {
 	private Logger logger = LoggerFactory.getLogger(ApiCandidateSearch.class);
-	
+
 	@Autowired
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
@@ -49,6 +49,7 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 
 	@Value("${server.port:8080}")
 	private String serverPort;
+
 	
 	//kong service properties
 	@Value("${kong.model.service.connect_timeout:60000}")
@@ -74,13 +75,21 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 	@Value("${kong.model.route.regex_priority:0}")
     private Integer regex_priority;
 	
-	
+
+	@Value("${kong.build.addressmode:IP}")
+	private String buildAlddressMode;
+
 	@PostConstruct
 	public void init() {
 		if(serverAddres == null || serverAddres.isEmpty()) {
 			try {
 				InetAddress ia =InetAddress.getLocalHost();
-				serverAddres = ia.getHostAddress();
+
+				if(buildAlddressMode.equals("IP")) {
+				    serverAddres = ia.getHostAddress();
+                } else {
+				    serverAddres = ia.getHostName();
+                }
 			} catch (UnknownHostException e) {
 				logger.error("Error when try to recovery server address. Set it 'localhost'");
 				serverAddres = "localhost";
@@ -90,9 +99,7 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 		if (logger.isDebugEnabled()) {
 			logger.debug("Server address set as: {}", serverAddres);
 		}
-
 	}
-	
 	
 	/**
 	 * @see ApiCandidateSearch#search()
