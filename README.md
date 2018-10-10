@@ -1,22 +1,20 @@
 # Kong Spring Boot Starter
 
-This is a spring boot starter for [kong](https://konghq.com/) API gateway. When using this starter you can auto configure
-[kong](https://konghq.com/) _services_ and _routes_ to expose the configured Java APIs. 
-
-
+This is a spring boot starter for [kong](https://konghq.com/) API gateway. When using this starter you can auto 
+configure [kong](https://konghq.com/) _services_ and _routes_ to expose the configured Java APIs. 
 
 
 ## Usage
 
-To use Kong Spring boot Starter you just need to import the starter in your spring boot application and configure it on 
+To use Kong Spring boot Starter you just need to import this starter in your spring boot application and configure it on 
 *application.yml* or *application.properties* file.
 
 
 
 ### Import Starter Library
 
-As the startes is on Maven central repository, you can use [Maven](http://maven.apache.org/) or [Gradle](https://gradle.org/) easily to import the library. follow has the 
-examples of both.
+As this starter is released on Maven Central Repository, you can use [Maven](http://maven.apache.org/) or 
+[Gradle](https://gradle.org/) easily to import the library. The examples are follow.
 
 **Maven**
 ```xml
@@ -35,63 +33,78 @@ compile group: 'com.eimapi', name: 'kong-spring-boot-starter', version: '0.3.0'
 
 ### Starter Configuration
 
-The needed configuration are showed follow, in both format (**yml** and **properties**).
+The kong starter configurations is very easy, you just need to inform the __kong server URL__. This is the only required
+ field.
 
+The starter configuration use the default spring boot configuration policy,this way it's possible to configure it
+ through the application file configuration (**application.yml** or **application.properties**).
+
+Bellow has both configuration example with their explanation. 
 
 **application.yml**
 ```yaml
 server:
-  port: 8086 # Optional
-  address: 192.168.80.74 # Optional
+  port: 8086 #Optional - if not informed the starter will use as default 8080
+  address: "192.168.80.74" #Optional - once informed the starter will ignore the build address model
 
 kong:
   server:
-    url: http://192.168.80.110:8001
+    url: "http://192.168.80.110:8001" #REQUIRED - This is the Kong Management API address
   model:
     service:
-      connect_timeout: 60000 # Optional
-      read_timeout: 60000 # Optional
-      write_timeout: 60000 # Optional
-      protocol: "http" # Optional
-      retries: 5 # Optional
+      connect_timeout: 60000 #Optional - if not informed the starter will use as default 60000
+      read_timeout: 60000 #Optional - if not informed the starter will use as default 60000
+      write_timeout: 60000 #Optional - if not informed the starter will use as default 60000
+      protocol: "http" #Optional - if not informed the starter will use as default 'http'
+      retries: 5 #Optional - if not informed the starter will use as default 5
     route:
-      strip_path: true # Optional
-      preserve_host: false # Optional
-      regex_priority: 0 # Optional
+      strip_path: true #Optional - if not informed the starter will use as default true
+      preserve_host: false #Optional - if not informed the starter will use as default false
+      regex_priority: 0 #Optional - if not informed the starter will use as default 0
   build:
-    mode: REBUILD # Optional
-    addressmode: IP # Optional (IP | HOST)
+    mode: REBUILD #Optional - if not informed the starter will use as default CREATE.
+                  #Exists 2 different properties to this field (REBUILD | CREATE). If the informed 
+                  #option is different, the starter will assume the CREATE option
+    addressmode: IP #Optional - if not informed the starter will use as default IP.
+                    #Exists 2 different properties to this field (IP | HOST). If the informed 
+                    #option is different, the starter will assume the IP option.
+                    #NOTE: If the server address is informed this field will be ignored!
 ```
 
 
 **application.properties**
 ```properties
-server.port=8086 # Optional
-server.address=192.168.80.74 # Optional
+server.port=8086 #Optional - if not informed the starter will use as default 8080
+server.address=192.168.80.74 #Optional - once informed the starter will ignore the build address model
 
-kong.server.url=http://192.168.80.110:8001
-kong.model.service.connect_timeout=60000 # Optional
-kong.model.service.read_timeout=60000 # Optional
-kong.model.service.write_timeout=60000 # Optional
-kong.model.service.protocol="http" # Optional
-kong.model.service.retries=5 # Optional
-kong.model.route.strip_path=true # Optional
-kong.model.route.preserve_host=false # Optional
-kong.model.route.regex_priority=0 # Optional
-kong.model.build.mode=REBUILD # Optional
-kong.model.build.addressmode=IP # Optional (IP | HOST)
+kong.server.url=http://192.168.80.110:8001 #REQUIRED - This is the Kong Management API address
+kong.model.service.connect_timeout=60000 #Optional - if not informed the starter will use as 
+                                         #default 60000
+kong.model.service.read_timeout=60000 #Optional - if not informed the starter will use as default 60000
+kong.model.service.write_timeout=60000 #Optional - if not informed the starter will use as default 60000
+kong.model.service.protocol=http #Optional - if not informed the starter will use as default 'http'
+kong.model.service.retries=5 #Optional - if not informed the starter will use as default 5
+kong.model.route.strip_path=true #Optional - if not informed the starter will use as default true
+kong.model.route.preserve_host=false #Optional - if not informed the starter will use as default false
+kong.model.route.regex_priority=0 #Optional - if not informed the starter will use as default 0
+kong.model.build.mode=REBUILD #Optional - if not informed the starter will use as default CREATE.
+                              #Exists 2 different properties to this field (REBUILD | CREATE). 
+                              #If the informed option is different, the starter will assume the
+                              #CREATE option
+kong.model.build.addressmode=IP #Optional (IP | HOST) #Optional - if not informed the starter will use
+                                #as default IP. Exists 2 different properties to this field (IP | HOST).
+                                #If the informed option is different, the starter will assume 
+                                #the IP option.
+                                #NOTE: If the server address is informed this field will be ignored!
 ```
 
 ### Package and Class Filter
 
 
-Alternatively you also suppress the APIs that you cannot expose using the filter 
+TO DO YET
 
 
 ### Project Example 
 
 A simple utilization example can be found at [this GitHub repository](https://github.com/gsdenys/kong-starter-example).
-
-
-## License
 
