@@ -3,18 +3,46 @@
 This is a spring boot starter for [kong](https://konghq.com/) API gateway. When using this starter you can auto configure
 [kong](https://konghq.com/) _services_ and _routes_ to expose the configured Java APIs. 
 
-Follow you can see the Sample configuration
 
 
-<details>
-    <sumary>application.yml</sumary>
-    <p>
 
+## Usage
+
+To use Kong Spring boot Starter you just need to import the starter in your spring boot application and configure it on 
+*application.yml* or *application.properties* file.
+
+
+
+### Import Starter Library
+
+As the startes is on Maven central repository, you can use [Maven](http://maven.apache.org/) or [Gradle](https://gradle.org/) easily to import the library. follow has the 
+examples of both.
+
+**Maven**
+```xml
+<dependency>
+    <groupId>com.eimapi</groupId>
+    <artifactId>kong-spring-boot-starter</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+**Gradle**
+```groovy
+compile group: 'com.eimapi', name: 'kong-spring-boot-starter', version: '0.3.0'
+```
+
+
+### Starter Configuration
+
+The needed configuration are showed follow, in both format (**yml** and **properties**).
+
+
+**application.yml**
 ```yaml
 server:
   port: 8086 # Optional
   address: 192.168.80.74 # Optional
-
 
 kong:
   server:
@@ -34,12 +62,9 @@ kong:
     mode: REBUILD # Optional
     addressmode: IP # Optional (IP | HOST)
 ```
-</p>
-</datails>
-<details>
-    <sumary>application.properties</sumary>
-    <p>
 
+
+**application.properties**
 ```properties
 server.port=8086 # Optional
 server.address=192.168.80.74 # Optional
@@ -56,11 +81,17 @@ kong.model.route.regex_priority=0 # Optional
 kong.model.build.mode=REBUILD # Optional
 kong.model.build.addressmode=IP # Optional (IP | HOST)
 ```
-</p>
-</datails>
 
-
-
+### Package and Class Filter
 
 
 Alternatively you also suppress the APIs that you cannot expose using the filter 
+
+
+### Project Example 
+
+A simple utilization example can be found at [this GitHub repository](https://github.com/gsdenys/kong-starter-example).
+
+
+## License
+
