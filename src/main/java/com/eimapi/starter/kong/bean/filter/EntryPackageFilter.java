@@ -24,10 +24,12 @@ public class EntryPackageFilter implements Predicate <Entry<RequestMappingInfo, 
 	@Override
 	public boolean test(Entry<RequestMappingInfo, HandlerMethod> entry) {
 		String packageName = entry.getValue().getBeanType().getName();
-		
-		for (String string : packageArray) {
-			if (packageName.startsWith(string)){
-				return false;
+
+		if(this.packageArray != null && this.packageArray.length > 0) {
+			for (String string : packageArray) {
+				if (packageName.startsWith(string)) {
+					return false;
+				}
 			}
 		}
 		

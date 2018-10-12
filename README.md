@@ -100,11 +100,20 @@ kong.model.build.addressmode=IP #Optional (IP | HOST) #Optional - if not informe
 
 ### Package and Class Filter
 
+when necessary, is possible to use filter to suppress one API, group of APIs or package of APIs groups.
+ You can do that adding a property to the configuration file as  shown in the following code parts.
+ 
+When just a set of method inside the class need 
 
-TO DO YET
-
-
+**application.yml**
+```yaml
+kong:
+  filter: "com.eimapi.donothow,com.eimapi.show.DoNotShowThisClass,com.eimapi.show.ShowMethods#doNotShow"
+``` 
+ 
+ 
 ### Project Example 
 
 A simple utilization example can be found at [this GitHub repository](https://github.com/gsdenys/kong-starter-example).
+
 

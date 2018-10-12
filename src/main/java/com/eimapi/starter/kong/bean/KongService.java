@@ -43,8 +43,7 @@ public interface KongService {
 	 * Get service from name
 	 * 
 	 * @param name the service name
-	 * @return ServiceObject the kong service object 
-	 * @throws KongStarterException if any error occur
+	 * @return ServiceObject the kong service object
 	 */
 	ServiceObject getService(String name);
 }

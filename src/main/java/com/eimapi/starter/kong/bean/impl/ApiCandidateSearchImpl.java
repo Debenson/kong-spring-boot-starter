@@ -79,6 +79,11 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 	@Value("${kong.build.addressmode:IP}")
 	private String buildAlddressMode;
 
+	@Value("${kong.filter:}")
+	private String packageFilter;
+
+	private String[] packageFilterArray = null;
+
 	@PostConstruct
 	public void init() {
 		if(serverAddres == null || serverAddres.isEmpty()) {
@@ -99,6 +104,10 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 		if (logger.isDebugEnabled()) {
 			logger.debug("Server address set as: {}", serverAddres);
 		}
+
+		if(this.packageFilter != null && !this.packageFilter.isEmpty()) {
+            this.packageFilterArray = this.packageFilter.split(",");
+        }
 	}
 	
 	/**
@@ -112,7 +121,7 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 			logger.debug("Start mapping Kong services and routes");
 		}
 		
-		EntryPackageFilter packageFilter = new EntryPackageFilter();
+		EntryPackageFilter packageFilter = new EntryPackageFilter(this.packageFilterArray);
 
 		Map<String, ServiceObject> map = handlerMethods.entrySet().stream()
 				.filter(packageFilter)
@@ -164,7 +173,10 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 			methods = methodSet.stream().map(rm -> rm.toString()).toArray(String[]::new);
 		}
 		
-		RouteObject routeObject = new RouteObject(this.serverProtocol.split(","), methods, paths, serviceObject);
+		RouteObject routeObject = new RouteObject(
+		        this.serverProtocol.replaceAll("#","_").split(","),
+                methods, paths, serviceObject
+        );
 		
 		routeObject.setPreserve_host(this.preserve_host);
 		routeObject.setRegex_priority(this.regex_priority);
@@ -174,8 +186,13 @@ public class ApiCandidateSearchImpl extends AbstractApiCandidateSearch implement
 		
 		return routeObjects;
 	}
-	
-	
+
+    /**
+     * get the request mapping URLs path in the String format
+     *
+     * @param mapping the {@link RequestMappingInfo}
+     * @return String[] the array of URLs path
+     */
 	private String[] getPaths(@NotNull RequestMappingInfo mapping) {
 		Object[] objectArray = mapping.getPatternsCondition().getPatterns().toArray();
 

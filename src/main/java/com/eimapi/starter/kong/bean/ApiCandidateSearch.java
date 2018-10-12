@@ -17,7 +17,7 @@ public interface ApiCandidateSearch {
 	/**
 	 * Search by all APIs that exist on the microservice
 	 *  
-	 * @return {@link Map} of {@link ApiObject}
+	 * @return {@link Map} of {@link ServiceObject}
 	 * @throws KongStarterException if any error occurs
 	 */
 	Map<String, ServiceObject> search() throws KongStarterException;

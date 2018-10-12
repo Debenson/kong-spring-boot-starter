@@ -27,7 +27,9 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
     private static final String KONG_ROUTE_PATH = "routes";
     private static final String MODE_REBUILD = "REBUILD";
     private static final String MODE_CREATE = "CREATE";
+
     private Logger logger = LoggerFactory.getLogger(KongServiceImpl.class);
+
     @Value("${kong.server.url:http://localhost:8001}")
     private String kongURL;
 
@@ -170,7 +172,7 @@ public class KongServiceImpl extends AbstractKongService implements KongService 
      * @param object the service object
      * @throws KongStarterException if any error occur
      */
-    public void removeServiceAndRoutes(ServiceObject object) throws KongStarterException {
+    private void removeServiceAndRoutes(ServiceObject object) throws KongStarterException {
         String URL_RUOTES = this.getKongURL(this.kongURL, KONG_SERVICE_PATH, object.getName(), KONG_ROUTE_PATH);
         List<RouteObject> routeList = super.getKongRouteObjectList(URL_RUOTES);
 

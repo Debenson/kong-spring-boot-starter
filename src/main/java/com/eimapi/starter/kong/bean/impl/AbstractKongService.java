@@ -31,8 +31,8 @@ public abstract class AbstractKongService {
 
 	/**
 	 * Create the Kong URL to be invoked by rest template
-	 * 
-	 * @param Array of resource
+	 *
+	 * @param args the array of URL parts
 	 * @return {@link String} the Kong URL
 	 */
 	protected String getKongURL(String... args) {
